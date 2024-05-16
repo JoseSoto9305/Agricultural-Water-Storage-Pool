@@ -1,0 +1,23 @@
+{
+    "globals": {
+        "n_process": 2,
+        "max_images_to_download": 18000
+    },
+    "input": {
+        "api": {
+            "url": "https://maps.googleapis.com/maps/api/staticmap",
+            "params": {
+                "size": "552x552", 
+                "scale": 1,
+                "zoom": 18,
+                "format": "png32",
+                "maptype": "satellite",
+                "key": {
+                    "env_variable": "GOOGLE_STATICMAP_API_KEY",
+                    "load_from_environ": true
+                }
+            },
+            "timeout": 60
+        }
+    }
+}
