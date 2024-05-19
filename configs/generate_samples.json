@@ -1,0 +1,15 @@
+{
+    "globals": {
+        "batch_size": 10000
+    },
+    "input": {
+        "shapefile": {
+            "path": "./data/shapefiles/RH12Ga_subc_repr.shp",
+            "is_latlong": false
+        }
+    },
+    "output": {
+        "set_as_default": true,
+        "path": null
+    }
+}

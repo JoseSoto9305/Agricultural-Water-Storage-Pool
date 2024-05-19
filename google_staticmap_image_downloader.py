@@ -54,7 +54,7 @@ class ImageDownloader:
         timestamp = t.strftime(gl.IMAGE_FMT_TIMESTAMP)
         partition = f'{gl.IMAGE_PARTITION}={date}'
         filename = f'{gl.IMAGE_PREFIX}_{pid}_{timestamp}{gl.IMAGE_SUFFIX_DATA}'
-        path = os.path.join(gl.DIRECTORY_IMAGE, partition)
+        path = os.path.join(gl.DIRECTORY_IMAGES, partition)
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
         path = os.path.join(path, filename)
@@ -63,7 +63,10 @@ class ImageDownloader:
     def _build_url(self, center:str):
         url = self.cfg['input.api.url']
         params = urllib.parse.urlencode(
-            {**{'center': center}, **self.cfg['input.api.params']})
+            {**{
+                'center': center,
+                'size': f'{gl.IMAGE_HEIGHT}x{gl.IMAGE_WIDTH}'
+            }, **self.cfg['input.api.params']})
         return f'{url}?{params}'
 
     def _download_image(self, row:np.array):
@@ -104,7 +107,7 @@ class ImageDownloader:
             logger(f'Cannot save image info, because image download error or image corruption error')
             return None
 
-        file = os.path.join(gl.DIRECTORY_IMAGE, f'.{self.execution}_image_info_{pid}.csv')
+        file = os.path.join(gl.DIRECTORY_IMAGES, f'.{self.execution}_image_info_{pid}.csv')
         if not os.path.exists(file):
             with open(file, 'w') as f:
                 header = 'ID,timestamp,name,img_path,img_exists\n'
@@ -117,7 +120,7 @@ class ImageDownloader:
         return None
 
     def _merge_csvs(self, coords:pd.DataFrame) -> None:
-        files = [os.path.join(gl.DIRECTORY_IMAGE, f) for f in os.listdir(gl.DIRECTORY_IMAGE) 
+        files = [os.path.join(gl.DIRECTORY_IMAGES, f) for f in os.listdir(gl.DIRECTORY_IMAGES) 
                       if f.startswith(f'.{self.execution}')]
         if not files:
             logger(f'Image info tmp files not available for current execution')

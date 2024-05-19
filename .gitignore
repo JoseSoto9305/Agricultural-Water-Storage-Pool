@@ -3,3 +3,9 @@
 
 # Data testing
 *_data.png
+*.shp
+*.cpg
+*.dbf
+*.prj
+*shx
+*.qmd
