@@ -5,7 +5,7 @@ from collections import OrderedDict
 from functools import wraps
 from typing import Any
 
-import pandas as pd
+import geopandas as gpd
 
 from multiprocessing import get_context
 from multiprocessing.pool import Pool
@@ -285,12 +285,12 @@ def load_json_config(path:str) -> JsonConfig:
     return JsonConfig(**config)
 
 
-def load_coordinates() -> pd.DataFrame:
+def load_coordinates() -> gpd.GeoDataFrame:
     from configs import vars_globals as gl
 
     if not os.path.exists(gl.COORDINATES_FILE):
         raise FileNotFoundError(f'File={gl.COORDINATES_FILE} not available')
-    return pd.read_csv(gl.COORDINATES_FILE)
+    return gpd.read_file(gl.COORDINATES_FILE)
 
 
 _pools_classes = [
@@ -305,6 +305,7 @@ _pool_methods = [
     'starmap'
 ]
 _local_vars = locals()
+
 def parallel_process(
         func, iterable, class_pool='Pool', 
         pool_method='map', process=os.cpu_count(), context=None,

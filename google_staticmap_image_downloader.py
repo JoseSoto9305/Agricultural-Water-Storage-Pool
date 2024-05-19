@@ -6,6 +6,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 import requests
 from skimage.io import imread
 
@@ -36,7 +37,7 @@ class ImageDownloader:
         self.cfg = load_json_config(CONFIG_PATH)
         self.cfg = self._load_api_key()
 
-    def _get_max_sample_mask(self, coords:pd.DataFrame) -> pd.Series:
+    def _get_max_sample_mask(self, coords:gpd.GeoDataFrame) -> pd.Series:
         mask = coords['img_exists'] == False
         return mask
 
@@ -119,7 +120,7 @@ class ImageDownloader:
             f.write(line)
         return None
 
-    def _merge_csvs(self, coords:pd.DataFrame) -> None:
+    def update_coordinates_file(self, coords:gpd.GeoDataFrame) -> None:
         files = [os.path.join(gl.DIRECTORY_IMAGES, f) for f in os.listdir(gl.DIRECTORY_IMAGES) 
                       if f.startswith(f'.{self.execution}')]
         if not files:
@@ -145,7 +146,8 @@ class ImageDownloader:
             mask = ~coords[f'{c}_DROP'].isna()
             coords.loc[mask, c] = coords.loc[mask, f'{c}_DROP']
         coords.drop([f'{c}_DROP' for c in columns], axis=1, inplace=True)
-        coords.to_csv(gl.COORDINATES_FILE, index=False, header=True)
+        coords['img_exists'] = coords['img_exists'].astype('int64')
+        coords.to_file(driver='ESRI Shapefile', filename=gl.COORDINATES_FILE)
         for f in files:
             try:
                 os.remove(f)
@@ -166,7 +168,7 @@ class ImageDownloader:
             class_pool='Pool',
             process=self.cfg['globals.n_process']
         )
-        self._merge_csvs(coords=coords)
+        self.update_coordinates_file(coords=coords)
         return None
 
 
