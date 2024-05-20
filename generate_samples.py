@@ -10,39 +10,25 @@ from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
 from functions.utils import parallel_process
 from functions.utils import load_json_config
+from functions.utils import get_batch_idxs
 from functions.utils import Timer
 from functions.image_georeferencing import get_image_corners
 
 
 logger = WriteLogger(name=__name__, level='DEBUG')
 timer = Timer()
-CFG_PATH = './configs/generate_samples.json'
+CONFIG_PATH = './configs/generate_samples.json'
 
 
 class SamplesGenerator:
 
     def __init__(self):
-        self.cfg = load_json_config(CFG_PATH)
+        self.cfg = load_json_config(CONFIG_PATH)
         self.batch_size = self.cfg['globals.batch_size']
         self.shape = gpd.read_file(self.cfg['input.shapefile.path'])
         if self.cfg['input.shapefile.is_latlong']:
             self.shape = self.shape.to_crs(gl.COORDINATES_CRS_REPROJECTION)
         self.coords = None
-
-    def _stratified_grid_get_batch_idxs(self):
-        n = len(self.coords)
-        remain = n % self.batch_size
-        if remain != 0:
-            n += (self.batch_size - (n % self.batch_size))
-        n += 1
-
-        idxs = []
-        values = list(range(0, n, self.batch_size))
-        for idx, value in enumerate(values):
-            if idx + 1 == len(values):
-                break
-            idxs.append((value, values[idx+1]))
-        return idxs
 
     def _stratified_grid_process_batch(self, batch_idxs):
         print(f'Processing batch={batch_idxs}')
@@ -73,6 +59,8 @@ class SamplesGenerator:
         self.coords['name'] = None
         self.coords['img_path'] = None
         self.coords['img_exists'] = False
+        self.coords['pred_path'] = None
+        self.coords['pred_exist'] = False
         self.coords = self.coords[[
             'ID',
             'center_lat',
@@ -84,6 +72,8 @@ class SamplesGenerator:
             'name',
             'img_path',
             'img_exists',
+            'pred_path',
+            'pred_exist',  # 10 character in esri column file
             'geometry'
         ]]
         return self.coords
@@ -113,7 +103,10 @@ class SamplesGenerator:
         self.coords[:,1] = ys.repeat(xs.shape[1], axis=1).flatten()
         self.coords = parallel_process(
             func=self._stratified_grid_process_batch,
-            iterable=self._stratified_grid_get_batch_idxs(),
+            iterable=get_batch_idxs(
+                iterable=self.coords, 
+                batch_size=self.batch_size
+            ),
             class_pool='ProcessPoolExecutor'
         )
         self.coords = gpd.GeoDataFrame(

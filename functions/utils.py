@@ -293,6 +293,22 @@ def load_coordinates() -> gpd.GeoDataFrame:
     return gpd.read_file(gl.COORDINATES_FILE)
 
 
+def get_batch_idxs(iterable, batch_size):
+    n = len(iterable)
+    remain = n % batch_size
+    if remain != 0:
+        n += (batch_size - (n % batch_size))
+    n += 1
+
+    idxs = []
+    values = list(range(0, n, batch_size))
+    for idx, value in enumerate(values):
+        if idx + 1 == len(values):
+            break
+        idxs.append((value, values[idx+1]))
+    return idxs
+
+
 _pools_classes = [
     Pool, 
     ProcessPoolExecutor,
@@ -305,6 +321,7 @@ _pool_methods = [
     'starmap'
 ]
 _local_vars = locals()
+
 
 def parallel_process(
         func, iterable, class_pool='Pool', 

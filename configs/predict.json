@@ -1,0 +1,5 @@
+{
+    "globals": {
+        "batch_size": 128
+    }
+}

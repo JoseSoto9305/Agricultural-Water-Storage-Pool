@@ -3,9 +3,11 @@
 
 # Data testing
 *_data.png
+*_prediction.png
 *.shp
 *.cpg
 *.dbf
 *.prj
 *shx
 *.qmd
+*.h5
