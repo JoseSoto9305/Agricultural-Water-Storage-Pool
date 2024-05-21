@@ -91,7 +91,7 @@ class ImagePredictor:
 
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
-                    imsave(path, y_pred[i,...,1])
+                    imsave(path, y_pred[j,...,1])
                 update.append({
                     'ID': im_ids[j],
                     'pred_path': path,

@@ -32,6 +32,12 @@ NN_WEIGHTS_ID = '20181123_202857'
 NN_WEIGHTS_path = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 
 
+# Polygons Extraction
+PREDICTION_THR = 0.95
+PREDICTIONS_PAD_SIZE = 20
+PREDICTIONS_FIND_COUNTOURS = 0.8
+PREDICTION_RELATION = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates_predictions.shp')
+
 # Image filename rules 
 IMAGE_EXT = '.png'
 IMAGE_FMT_DATE = '%Y%m%d'

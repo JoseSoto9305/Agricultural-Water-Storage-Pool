@@ -1,0 +1,9 @@
+{
+    "globals": {
+        "batch_size": 32
+    },
+    "output": {
+        "path": "./data/shapefiles/dissolved_test.shp",
+        "projection": null
+    }
+}
