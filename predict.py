@@ -166,8 +166,8 @@ def main() -> None:
     except Exception as exc:
         logger('RuntiError at main application full traceback is show below:', level='error')
         raise exc
-    return predictor
+    return None
 
 
 if __name__ == '__main__':
-    p = main()
+    main()
