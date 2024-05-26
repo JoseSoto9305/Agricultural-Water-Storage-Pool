@@ -1,5 +1,3 @@
-import uuid
-
 import numpy as np
 import geopandas as gpd
 from scipy.sparse.csgraph import connected_components
@@ -8,7 +6,12 @@ from skimage.measure import find_contours
 from skimage.morphology import label
 
 from configs import vars_globals as gl
+from functions.base_logger import WriteLogger
 from functions.image import zero_padding
+from functions.utils import generate_id
+
+
+logger = WriteLogger(name=__name__, level='DEBUG')
 
 
 def get_image_corners(
@@ -51,8 +54,9 @@ def get_polygons(batch:tuple):
         # Omit background labels
         polygons_index = [i for i in np.unique(labels) if not i == 0]
         return labels, polygons_index
+    
     im, _id, corners = batch
-    print(f'Processing image={_id}')
+
     # Upper left image coordinate
     ul = (
         corners.exterior.xy[0][0], 
@@ -100,7 +104,7 @@ def dissolve_polygons(polygons:gpd.GeoDataFrame):
         'geometry': polygons.geometry, 
     }, crs=polygons.crs).dissolve(by='ID')
     dissolved = dissolved.reset_index(drop=True)
-    dissolved['ID'] = dissolved.apply(lambda _: uuid.uuid4().hex, axis=1)
+    dissolved['ID'] = dissolved.apply(lambda _: generate_id(), axis=1)
     dissolved = dissolved[[
         'ID',
         'geometry'

@@ -1,23 +1,28 @@
 import os
 import json
 import time
+import uuid
 from collections import OrderedDict
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
+from multiprocessing import get_context
+from multiprocessing.pool import Pool
+from multiprocessing.pool import ThreadPool
 from typing import Any
 
 import geopandas as gpd
 
-from multiprocessing import get_context
-from multiprocessing.pool import Pool
-from multiprocessing.pool import ThreadPool
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import ThreadPoolExecutor
-
+from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
 
 
-logger = WriteLogger(name=__name__, level='INFO')
+logger = WriteLogger(name=__name__, level='DEBUG')
 
+
+def generate_id():
+    return uuid.uuid4().hex
+    
 
 class JsonConfig(dict):
     """Custom dictionary; retrieves and updates values
@@ -280,25 +285,28 @@ def load_environment_variable(name:str, load_from_environ:bool=False) -> str:
 
 
 def load_json_config(path:str) -> JsonConfig:
+    logger(f'Loading JSON configuration file at: {path}')
     with open(path) as file:
         config = json.load(file)
+    logger(config, level='debug')
     return JsonConfig(**config)
 
 
 def load_coordinates() -> gpd.GeoDataFrame:
-    from configs import vars_globals as gl
-
+    logger(f'Loading coordinates file at: {gl.COORDINATES_FILE}')
     if not os.path.exists(gl.COORDINATES_FILE):
         raise FileNotFoundError(f'File={gl.COORDINATES_FILE} not available')
     return gpd.read_file(gl.COORDINATES_FILE)
 
 
-def get_batch_idxs(iterable, batch_size):
+def get_batch_idxs(iterable:Any, batch_size:int) -> list:
     n = len(iterable)
+    logger(f'Getting batch indices with N={n} and batch_size={batch_size}', level='debug')
     remain = n % batch_size
     if remain != 0:
         n += (batch_size - (n % batch_size))
-    n += 1
+    n += 1    
+    logger(f'Fixed N={n}', level='debug')
 
     idxs = []
     values = list(range(0, n, batch_size))
@@ -306,6 +314,7 @@ def get_batch_idxs(iterable, batch_size):
         if idx + 1 == len(values):
             break
         idxs.append((value, values[idx+1]))
+    logger(f'Total of batches to process={len(idxs)}')
     return idxs
 
 
@@ -324,11 +333,16 @@ _local_vars = locals()
 
 
 def parallel_process(
-        func, iterable, class_pool='Pool', 
-        pool_method='map', process=os.cpu_count(), context=None,
-        timeout=None, chunksize=1, callable_if_timeout=None, 
-        ram_monitor_kws:dict=None
-    ):
+        func:callable,
+        iterable:Any,
+        class_pool:str='Pool',
+        pool_method:str='map',
+        process:int=os.cpu_count(),
+        context:str=None,
+        timeout:int=None,
+        chunksize=1,
+        callable_if_timeout:callable=None
+    ) -> Any:
 
     # RAM Monitor configuration steps
     if isinstance(class_pool, str):
@@ -346,10 +360,7 @@ def parallel_process(
             kwargs['context'] = get_context(context)
         elif class_pool == ProcessPoolExecutor:
             kwargs['mp_context'] = get_context(context)
-
-    if ram_monitor_kws is not None:
-        kwargs['mp_context'] = get_context('fork')
-        
+       
     with class_pool(process, **kwargs) as pool:
         if pool_method not in _pool_methods:
             raise ValueError(f'Pool function={pool_method} is not available; available={_pool_methods}')
@@ -386,4 +397,3 @@ def parallel_process(
                 data = list(data)
         logger(f'Parallel process done successfully', level='debug')
         return data
-

@@ -1,21 +1,22 @@
 import os
-import uuid
+from datetime import datetime
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 from shapely.geometry import Point
 
 from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
-from functions.utils import parallel_process
-from functions.utils import load_json_config
-from functions.utils import get_batch_idxs
-from functions.utils import Timer
 from functions.image_georeferencing import get_image_corners
+from functions.utils import generate_id
+from functions.utils import get_batch_idxs
+from functions.utils import load_json_config
+from functions.utils import parallel_process
+from functions.utils import Timer
 
 
-logger = WriteLogger(name=__name__, level='DEBUG')
+logger = WriteLogger(name='generate_samples', level='DEBUG')
 timer = Timer()
 CONFIG_PATH = './configs/generate_samples.json'
 
@@ -24,15 +25,41 @@ class SamplesGenerator:
 
     def __init__(self):
         self.cfg = load_json_config(CONFIG_PATH)
-        self.batch_size = self.cfg['globals.batch_size']
-        self.shape = gpd.read_file(self.cfg['input.shapefile.path'])
-        if self.cfg['input.shapefile.is_latlong']:
-            self.shape = self.shape.to_crs(gl.COORDINATES_CRS_REPROJECTION)
         self.coords = None
+        self.batch_size = self.cfg['globals.batch_size']
+        self.shape = self._load_input_shapefile()
 
-    def _stratified_grid_process_batch(self, batch_idxs):
-        print(f'Processing batch={batch_idxs}')
+    def _load_input_shapefile(self) -> gpd.GeoDataFrame:
+        path = self.cfg['input.shapefile.path']
+        logger(f'Loading input shapefile at: {path}')
+        data = gpd.read_file(path)
+        if data.crs is None:
+            raise ValueError(f'Cannot process this file={path} because CRS is not Defined')
+        if not data.crs.equals(gl.COORDINATES_CRS_REPROJECTION):
+            logger(f'Reproject shape to default CRS projection={gl.COORDINATES_CRS_REPROJECTION}', level='debug')
+            data = data.to_crs(gl.COORDINATES_CRS_REPROJECTION)
+        assert data.crs.equals(gl.COORDINATES_CRS_REPROJECTION), f'Unexpected error; incorrect CRS in input shapefile; input={data.crs}; expected={gl.COORDINATES_CRS_REPROJECTION}'
+        logger(f'Shapefile loaded successfully')
+        if data.shape[0] == 0:
+            raise ValueError(f'Empty file; cannot process this shapefile because is empty')
+        return data
+
+    def _build_grid(self) -> np.array:
+        xmin, ymin, xmax, ymax = self.shape.bounds.values[0]
+        logger(f'Grid bounds: Xmin={xmin}||Xmax={xmax}  Ymin={ymin}||Ymax={ymax}')
+        xs = np.arange(xmin, xmax, gl.IMAGE_DTHR)
+        ys = np.arange(ymin, ymax, gl.IMAGE_DTHR)
+        xs = xs.reshape(1, xs.size)
+        ys = ys.reshape(ys.size, 1)
+        coords = np.zeros((ys.shape[0] * xs.shape[1], 2))
+        logger(f'Grid shape={coords.shape}')
+        coords[:,0] = xs.repeat(ys.shape[0], axis=0).flatten()
+        coords[:,1] = ys.repeat(xs.shape[1], axis=1).flatten()
+        return coords
+
+    def _stratified_grid_process_batch(self, batch_idxs:tuple) -> gpd.GeoDataFrame:
         ini, end = batch_idxs
+        logger(f'Processing batch; indices from={ini}||to={end}')
         df = gpd.GeoDataFrame(self.coords[ini:end], 
                             columns=['center_x', 'center_y'])
         df['geometry'] = df.apply(lambda x: get_image_corners(
@@ -40,7 +67,8 @@ class SamplesGenerator:
         df.crs = gl.COORDINATES_CRS_REPROJECTION
         return gpd.sjoin(df, self.shape, how='inner', op='intersects')
 
-    def _set_coordinates_file(self):
+    def _set_coordinates_file(self) -> gpd.GeoDataFrame:
+        logger(f'Setting schema output file.....')
         centers = self.coords.apply(lambda x: 
                         Point(x.center_x, x.center_y), axis=1)
         centers = gpd.GeoSeries(centers, crs=gl.COORDINATES_CRS_REPROJECTION)
@@ -51,7 +79,7 @@ class SamplesGenerator:
             'center_y', 
             'geometry'
         ]]
-        self.coords['ID'] = self.coords.apply(lambda x: uuid.uuid4().hex, axis=1)
+        self.coords['ID'] = self.coords.apply(lambda _: generate_id(), axis=1)
         self.coords['center_lat'] = centers.y
         self.coords['center_long'] = centers.x
         self.coords['center'] = self.coords.apply(lambda x: f'{x.center_lat},{x.center_long}', axis=1)
@@ -73,12 +101,13 @@ class SamplesGenerator:
             'img_path',
             'img_exists',
             'pred_path',
-            'pred_exist',  # 10 character in esri column file
+            'pred_exist',  # 10 characters in ESRI column file
             'geometry'
         ]]
         return self.coords
     
-    def _set_as_default(self):
+    def _set_as_default(self) -> None:
+        logger(f'Setting output file as default coordinates file')
         if os.path.exists(gl.COORDINATES_FILE):
             answer = input(f'Do you want to overwrite current file={gl.COORDINATES_FILE}? Y/n')
             if answer.lower() != 'y':
@@ -86,21 +115,22 @@ class SamplesGenerator:
         self.cfg['output.path'] = gl.COORDINATES_FILE
         return None
 
-    def _save_file(self):
+    def _save_file(self) -> None:
         path = self.cfg['output.path']
+        directory, filename = os.path.split(path)
+        if not filename.endswith('.shp'):
+            raise ValueError(f'Output filename={path} doesnt endswith `.shp`')
+        if not os.path.exists(directory):
+            os.makedirs(path, exist_ok=True)        
+        logger(f'Saving output at: {path}')
         self.coords.to_file(driver='ESRI Shapefile', filename=path)
         return None
 
-    @timer.time
-    def stratified_grid(self):
-        xmin, ymin, xmax, ymax = self.shape.bounds.values[0]
-        xs = np.arange(xmin, xmax, gl.IMAGE_DTHR)
-        ys = np.arange(ymin, ymax, gl.IMAGE_DTHR)
-        xs = xs.reshape(1,xs.size)
-        ys = ys.reshape(ys.size,1)
-        self.coords = np.zeros((ys.shape[0] * xs.shape[1], 2))
-        self.coords[:,0] = xs.repeat(ys.shape[0], axis=0).flatten()
-        self.coords[:,1] = ys.repeat(xs.shape[1], axis=1).flatten()
+    def stratified_grid(self) -> None:
+        logger(f'Generating stratified grid....')
+        self.coords = self._build_grid()
+        logger(f'Selecting grid samples that intersect with input shapefile; this will take a while....')
+        logger(f'Processing samples with batch size={self.batch_size}')
         self.coords = parallel_process(
             func=self._stratified_grid_process_batch,
             iterable=get_batch_idxs(
@@ -109,16 +139,33 @@ class SamplesGenerator:
             ),
             class_pool='ProcessPoolExecutor'
         )
+        if not self.coords:
+            logger(f'Cannot continue with application because coords is empty :(')
+            return None
         self.coords = gpd.GeoDataFrame(
             pd.concat(self.coords, ignore_index=True),
             crs=gl.COORDINATES_CRS_REPROJECTION)
+        logger(f'Total of samples to export: {self.coords.shape[0]}')
         self.coords = self._set_coordinates_file()
         if self.cfg['output.set_as_default']:
+            
             self._set_as_default()
         self._save_file()
         return None
 
 
+@timer.time
+def main() -> None:
+    try:
+        logger(f'Starting Generate Samples application at: {datetime.now()}')
+        generator = SamplesGenerator()
+        generator.stratified_grid()
+        logger(f'Main application done successfully :)')
+    except Exception as exc:
+        logger('RuntiError at main application full traceback is show below:', level='error')
+        raise exc
+    return None
+
+
 if __name__ == '__main__':
-    generator = SamplesGenerator()
-    generator.stratified_grid()
+    main()

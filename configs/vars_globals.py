@@ -7,8 +7,8 @@ DIRECTORY_SHAPEFILES = './data/shapefiles'
 
 # Coordinates Samples File
 COORDINATES_FILE = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates.shp')
-COORDINATES_CRS_LATLONG = {'init': 'epsg:4326'}
-COORDINATES_CRS_REPROJECTION = {'init': 'epsg:6372'}
+COORDINATES_CRS_LATLONG = 'epsg:4326'
+COORDINATES_CRS_REPROJECTION = 'epsg:6372'
 
 # Image spatial parameters
 IMAGE_HEIGHT = 552
