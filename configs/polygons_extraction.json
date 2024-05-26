@@ -4,6 +4,6 @@
     },
     "output": {
         "path": "./data/shapefiles/dissolved_test.shp",
-        "projection": null
+        "projection": "epsg:4326"
     }
 }

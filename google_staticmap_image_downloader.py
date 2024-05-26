@@ -230,7 +230,7 @@ def main() -> None:
         downloader.run()
         logger(f'Main application done successfully :)')
     except Exception as exc:
-        logger('RuntiError at main application full traceback is show below:', level='error')
+        logger('RuntimeError at main application full traceback is show below:', level='error')
         raise exc
     return None
 
