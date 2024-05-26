@@ -29,7 +29,7 @@ NN_INPUT_SHAPE = (
 )
 NN_CLASSES = 2
 NN_WEIGHTS_ID = '20181123_202857'
-NN_WEIGHTS_path = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
+NN_WEIGHTS_PATH = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 
 
 # Polygons Extraction
