@@ -21,7 +21,7 @@ timer = Timer()
 CONFIG_PATH = './configs/generate_samples.json'
 
 
-class SamplesGenerator:
+class SamplesGeneratorStratifiedGrid:
 
     def __init__(self):
         self.cfg = load_json_config(CONFIG_PATH)
@@ -57,7 +57,7 @@ class SamplesGenerator:
         coords[:,1] = ys.repeat(xs.shape[1], axis=1).flatten()
         return coords
 
-    def _stratified_grid_process_batch(self, batch_idxs:tuple) -> gpd.GeoDataFrame:
+    def _process_batch(self, batch_idxs:tuple) -> gpd.GeoDataFrame:
         ini, end = batch_idxs
         logger(f'Processing batch; indices from={ini}||to={end}')
         df = gpd.GeoDataFrame(self.coords[ini:end], 
@@ -126,13 +126,13 @@ class SamplesGenerator:
         self.coords.to_file(driver='ESRI Shapefile', filename=path)
         return None
 
-    def stratified_grid(self) -> None:
+    def run(self) -> None:
         logger(f'Generating stratified grid....')
         self.coords = self._build_grid()
         logger(f'Selecting grid samples that intersect with input shapefile; this will take a while....')
         logger(f'Processing samples with batch size={self.batch_size}')
         self.coords = parallel_process(
-            func=self._stratified_grid_process_batch,
+            func=self._process_batch,
             iterable=get_batch_idxs(
                 iterable=self.coords, 
                 batch_size=self.batch_size
@@ -158,8 +158,8 @@ class SamplesGenerator:
 def main() -> None:
     try:
         logger(f'Starting Generate Samples application at: {datetime.now()}')
-        generator = SamplesGenerator()
-        generator.stratified_grid()
+        generator = SamplesGeneratorStratifiedGrid()
+        generator.run()
         logger(f'Main application done successfully :)')
     except Exception as exc:
         logger('RuntimeError at main application full traceback is show below:', level='error')
