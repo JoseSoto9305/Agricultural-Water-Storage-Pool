@@ -145,9 +145,9 @@ def dissolve_polygons(polygons:gpd.GeoDataFrame):
         'geometry': polygons.geometry, 
     }, crs=polygons.crs).dissolve(by='ID')
     dissolved = dissolved.reset_index(drop=True)
-    dissolved['ID'] = dissolved.apply(lambda _: generate_id(), axis=1)
+    dissolved['ID_polygon'] = dissolved.apply(lambda _: generate_id(), axis=1)
     dissolved = dissolved[[
-        'ID',
+        'ID_polygon',
         'geometry'
     ]]
     logger(f'Total of polygons after apply connected components={dissolved.shape[0]}')
@@ -205,7 +205,7 @@ class ImagePolygonsExtraction:
                             crs=gl.COORDINATES_CRS_REPROJECTION)
         self._save_relational_table(polygons=polygons)
         self._save_dissolved_polygons(dissolved=dissolve_polygons(polygons=polygons))
-        return None
+        return polygons
 
 
 @timer.time
@@ -213,13 +213,13 @@ def main() -> None:
     try:
         logger(f'Starting extract polygons from prediction images application at: {datetime.now()}')
         extractor = ImagePolygonsExtraction()
-        extractor.run()
+        polygons = extractor.run()
         logger(f'Main application done successfully :)')
     except Exception as exc:
         logger('RuntimeError at main application full traceback is show below:', level='error')
         raise exc
-    return None
+    return polygons
 
 
 if __name__ == '__main__':
-    main()
+    p = main()
