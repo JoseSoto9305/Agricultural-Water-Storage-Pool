@@ -39,9 +39,9 @@ class ImageGeneratorPolygonsExtraction(ImageGenerator):
 
     def __init__(self, batch_size:int=32):
         super().__init__(batch_size=batch_size)
-        self.coords = self._set_images_corners()
+        self.coords = self._set_image_corners()
 
-    def _set_images_corners(self) -> gpd.GeoDataFrame:
+    def _set_image_corners(self) -> gpd.GeoDataFrame:
         self.coords['_fixed_geo'] = self.coords[['center_x', 'center_y']].apply(
             lambda x: get_image_corners(
                 center_x=x.center_x,
