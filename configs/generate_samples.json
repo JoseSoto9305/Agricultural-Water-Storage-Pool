@@ -8,7 +8,9 @@
         }
     },
     "output": {
-        "set_as_default": false,
-        "path": "./data/shapefiles/test_coords.shp"
+        "shapefile": {
+            "path": "./data/shapefiles/test_coords.shp"
+        },
+        "set_as_default": false
     }
 }

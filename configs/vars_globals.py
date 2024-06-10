@@ -1,14 +1,14 @@
 import os
 
-# Direcotories
+# Directories
 DIRECTORY_IMAGES = './data/google_images'
 DIRECTORY_PREDICTIONS = './data/prediction_images'
 DIRECTORY_SHAPEFILES = './data/shapefiles'
 
 # Coordinates Samples File
 COORDINATES_FILE = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates.shp')
+COORDINATES_CRS_PROJECTION = 'epsg:6372'
 COORDINATES_CRS_LATLONG = 'epsg:4326'
-COORDINATES_CRS_REPROJECTION = 'epsg:6372'
 
 # Image spatial parameters
 IMAGE_HEIGHT = 552
@@ -20,22 +20,21 @@ IMAGE_CROP_SIZE = 20  # X pixels for each image side (left, right, upper, lower)
 IMAGE_DTHR = 250
 
 # Neural Network
-IMAGE_FIXED_HIGHT = IMAGE_HEIGHT - IMAGE_CROP_SIZE * 2
+IMAGE_FIXED_HEIGHT = IMAGE_HEIGHT - IMAGE_CROP_SIZE * 2
 IMAGE_FIXED_WIDTH = IMAGE_WIDTH - IMAGE_CROP_SIZE * 2
 NN_INPUT_SHAPE = (
-    IMAGE_FIXED_HIGHT,
+    IMAGE_FIXED_HEIGHT,
     IMAGE_FIXED_WIDTH,
     IMAGE_CHANNELS
 )
 NN_CLASSES = 2
 NN_WEIGHTS_ID = '20181123_202857'
-NN_WEIGHTS_PATH = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
-
+NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 
 # Polygons Extraction
 PREDICTION_THR = 0.95
-PREDICTIONS_PAD_SIZE = 20
-PREDICTIONS_FIND_COUNTOURS = 0.8
+PREDICTION_PAD_SIZE = 20
+PREDICTION_FIND_COUNTOURS = 0.8
 PREDICTION_RELATION = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates_predictions.shp')
 
 # Image filename rules 

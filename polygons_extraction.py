@@ -21,6 +21,7 @@ from functions.utils import load_json_config
 from functions.utils import parallel_process
 from functions.utils import Timer
 from functions.utils import generate_id
+from functions.utils import replace_templates
 
 
 logger = WriteLogger(name=__name__, level='INFO')
@@ -109,10 +110,10 @@ def get_polygons(item:tuple) -> list:
     count = 0
     for i in polygons_indices:
         # Detect polygon vertices in image
-        mask = np.zeros((gl.IMAGE_FIXED_HIGHT, gl.IMAGE_FIXED_WIDTH), dtype='uint8')
+        mask = np.zeros((gl.IMAGE_FIXED_HEIGHT, gl.IMAGE_FIXED_WIDTH), dtype='uint8')
         mask[labels == i] =  255
-        mask = zero_padding(mask, pad_size=gl.PREDICTIONS_PAD_SIZE)
-        polygon = find_contours(mask, gl.PREDICTIONS_FIND_COUNTOURS)
+        mask = zero_padding(mask, pad_size=gl.PREDICTION_PAD_SIZE)
+        polygon = find_contours(mask, gl.PREDICTION_FIND_COUNTOURS)
 
         for pp in polygon:
             # Flip (y,x) to (x,y)
@@ -120,8 +121,8 @@ def get_polygons(item:tuple) -> list:
             # Referencing the vertices into the image
             pp = np.array( 
                 (
-                    ul[0] + ((pp[:,0]-gl.PREDICTIONS_PAD_SIZE) * gl.IMAGE_RESOLUTION_X),
-                    ul[1] - ((pp[:,1]-gl.PREDICTIONS_PAD_SIZE) * gl.IMAGE_RESOLUTION_Y)
+                    ul[0] + ((pp[:,0]-gl.PREDICTION_PAD_SIZE) * gl.IMAGE_RESOLUTION_X),
+                    ul[1] - ((pp[:,1]-gl.PREDICTION_PAD_SIZE) * gl.IMAGE_RESOLUTION_Y)
                 )
             ).T
             polygons.append({
@@ -186,6 +187,13 @@ class ImagePolygonsExtraction:
             crs = gl.COORDINATES_CRS_LATLONG
         dissolved.to_crs(crs)
 
+        output_path = replace_templates(
+            value=output_path,
+            replace_values={
+                'NOW': datetime.now(),
+                'NN_WEIGHTS_ID': gl.NN_WEIGHTS_ID
+            }
+        )
         logger(f'Saving dissolved polygons at:{output_path}')
         dissolved.to_file(driver='ESRI Shapefile', filename=output_path)        
         return None
@@ -202,7 +210,7 @@ class ImagePolygonsExtraction:
             [polygons.extend(p) for p in pp if p] # Remove empty images
         
         polygons = gpd.GeoDataFrame(pd.DataFrame(polygons), 
-                            crs=gl.COORDINATES_CRS_REPROJECTION)
+                            crs=gl.COORDINATES_CRS_PROJECTION)
         self._save_relational_table(polygons=polygons)
         self._save_dissolved_polygons(dissolved=dissolve_polygons(polygons=polygons))
         return polygons

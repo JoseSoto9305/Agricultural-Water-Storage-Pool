@@ -52,7 +52,7 @@ class ImageGeneratorPredictor(ImageGenerator):
         img_paths = self.coords.iloc[ini:end]['img_path'].values
         X = np.empty((
             len(img_paths), 
-            gl.IMAGE_FIXED_HIGHT, 
+            gl.IMAGE_FIXED_HEIGHT, 
             gl.IMAGE_FIXED_WIDTH, 
             gl.IMAGE_CHANNELS
         ))
@@ -82,11 +82,11 @@ class ImagePredictor:
         logger(f'Returning neural network model...')
         logger(f'Input shape={gl.NN_INPUT_SHAPE}')
         logger(f'N classes={gl.NN_CLASSES}')
-        logger(f'Weights={gl.NN_WEIGHTS_PATH}')
+        logger(f'Weights={gl.NN_WEIGHTS_FILE}')
         model = restore_model(
             input_shape=gl.NN_INPUT_SHAPE,
             n_classes=gl.NN_CLASSES,
-            weights_path=gl.NN_WEIGHTS_PATH
+            weights_path=gl.NN_WEIGHTS_FILE
         )
         return model
 

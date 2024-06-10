@@ -35,10 +35,10 @@ class SamplesGeneratorStratifiedGrid:
         data = gpd.read_file(path)
         if data.crs is None:
             raise ValueError(f'Cannot process this file={path} because CRS is not Defined')
-        if not data.crs.equals(gl.COORDINATES_CRS_REPROJECTION):
-            logger(f'Reproject shape to default CRS projection={gl.COORDINATES_CRS_REPROJECTION}', level='debug')
-            data = data.to_crs(gl.COORDINATES_CRS_REPROJECTION)
-        assert data.crs.equals(gl.COORDINATES_CRS_REPROJECTION), f'Unexpected error; incorrect CRS in input shapefile; input={data.crs}; expected={gl.COORDINATES_CRS_REPROJECTION}'
+        if not data.crs.equals(gl.COORDINATES_CRS_PROJECTION):
+            logger(f'Reproject shape to default CRS projection={gl.COORDINATES_CRS_PROJECTION}', level='debug')
+            data = data.to_crs(gl.COORDINATES_CRS_PROJECTION)
+        assert data.crs.equals(gl.COORDINATES_CRS_PROJECTION), f'Unexpected error; incorrect CRS in input shapefile; input={data.crs}; expected={gl.COORDINATES_CRS_PROJECTION}'
         logger(f'Shapefile loaded successfully')
         if data.shape[0] == 0:
             raise ValueError(f'Empty file; cannot process this shapefile because is empty')
@@ -64,14 +64,14 @@ class SamplesGeneratorStratifiedGrid:
                             columns=['center_x', 'center_y'])
         df['geometry'] = df.apply(lambda x: get_image_corners(
             x.center_x, x.center_y, as_polygon=True), axis=1)
-        df.crs = gl.COORDINATES_CRS_REPROJECTION
+        df.crs = gl.COORDINATES_CRS_PROJECTION
         return gpd.sjoin(df, self.shape, how='inner', op='intersects')
 
     def _set_coordinates_file(self) -> gpd.GeoDataFrame:
         logger(f'Setting schema output file.....')
         centers = self.coords.apply(lambda x: 
                         Point(x.center_x, x.center_y), axis=1)
-        centers = gpd.GeoSeries(centers, crs=gl.COORDINATES_CRS_REPROJECTION)
+        centers = gpd.GeoSeries(centers, crs=gl.COORDINATES_CRS_PROJECTION)
         centers = centers.to_crs(gl.COORDINATES_CRS_LATLONG)
 
         self.coords = self.coords[[
@@ -111,12 +111,12 @@ class SamplesGeneratorStratifiedGrid:
         if os.path.exists(gl.COORDINATES_FILE):
             answer = input(f'Do you want to overwrite current file={gl.COORDINATES_FILE}? Y/n')
             if answer.lower() != 'y':
-                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.path` configuration and set `output.set_as_default` to False')
-        self.cfg['output.path'] = gl.COORDINATES_FILE
+                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.shapefile.path` configuration and set `output.set_as_default` to False')
+        self.cfg['output.shapefile.path'] = gl.COORDINATES_FILE
         return None
 
     def _save_file(self) -> None:
-        path = self.cfg['output.path']
+        path = self.cfg['output.shapefile.path']
         directory, filename = os.path.split(path)
         if not filename.endswith('.shp'):
             raise ValueError(f'Output filename={path} doesnt endswith `.shp`')
@@ -144,7 +144,7 @@ class SamplesGeneratorStratifiedGrid:
             return None
         self.coords = gpd.GeoDataFrame(
             pd.concat(self.coords, ignore_index=True),
-            crs=gl.COORDINATES_CRS_REPROJECTION)
+            crs=gl.COORDINATES_CRS_PROJECTION)
         logger(f'Total of samples to export: {self.coords.shape[0]}')
         self.coords = self._set_coordinates_file()
         if self.cfg['output.set_as_default']:

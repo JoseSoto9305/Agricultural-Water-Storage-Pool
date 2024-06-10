@@ -1,10 +1,12 @@
 import os
+import re
 import json
 import time
 import uuid
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from functools import wraps
 from multiprocessing import get_context
 from multiprocessing.pool import Pool
@@ -397,3 +399,45 @@ def parallel_process(
                 data = list(data)
         logger(f'Parallel process done successfully', level='debug')
         return data
+
+
+def replace_templates(value, replace_values,  template='<...>'):
+    logger(f'Value before replace templates: {value}', level='debug')    
+
+    _valid_templates = ['<...>']
+    if not isinstance(value, str):
+        raise ValueError(f'Input value must be a string: provided={type(value)}')
+    if not isinstance(replace_values, dict):
+        raise ValueError(f'Replace values must be a dictionary; provided={type(replace_values)}')
+    if not isinstance(template, str):
+        raise ValueError(f'Template must be a string: provided={type(template)}')
+    
+    if template not in _valid_templates:
+        raise ValueError(f'Invalid template format, template must be one of these:{_valid_templates}')
+    t1, t2 = template.split('...')
+    
+    # TODO: Modify regex for mor templates added in _valid_templates
+    regex = r'\{}(.*?)\{}'.format(t1, t2)
+    templates = re.findall(regex, value)
+    
+    for template in templates:
+        dateformat = re.findall(r'\((.*?)\)', template)
+        if dateformat:
+            replace = replace_values.get(template.replace(f'({dateformat[0]})', ''))
+        else:
+            replace = replace_values.get(template)
+        
+        if replace is None:
+            logger(f'Cannot find template={template} in replace_values keys: available={replace_values.keys()}', level='warning')
+            continue
+
+        _template = f'{t1}{template}{t2}'
+        if isinstance(replace, datetime):
+            if not dateformat:
+                raise ValueError(f'Dateformat not found; cannot convert date to string: Parse the dateformat after the template key beetwen parenthesis: <MY-TEMPLATE-KEY(%Y-%m-%dT%H:%M:%SZ)>')
+            value = value.replace(_template, replace.strftime(dateformat[0]))
+        else:
+            value = value.replace(_template, str(replace))
+
+    logger(f'Value after replace templates: {value}', level='debug')
+    return value

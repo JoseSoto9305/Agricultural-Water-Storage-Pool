@@ -20,7 +20,7 @@ def get_image_corners(
     logger(f'Get image corners at: X={center_x}||Y={center_y}', level='debug')
     if as_fixed_size:
         dx = (gl.IMAGE_RESOLUTION_X * gl.IMAGE_FIXED_WIDTH) / 2.0
-        dy = (gl.IMAGE_RESOLUTION_Y * gl.IMAGE_FIXED_HIGHT) / 2.0
+        dy = (gl.IMAGE_RESOLUTION_Y * gl.IMAGE_FIXED_HEIGHT) / 2.0
     else:
         dx = (gl.IMAGE_RESOLUTION_X * gl.IMAGE_WIDTH) / 2.0
         dy = (gl.IMAGE_RESOLUTION_Y * gl.IMAGE_HEIGHT) / 2.0
