@@ -1,31 +1,31 @@
 import os
-import urllib.parse
 import multiprocessing as mp
+import urllib.parse
 from datetime import datetime
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 import requests
 from skimage.io import imread
 
 from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
-from functions.utils import JsonConfig
-from functions.utils import Timer
 from functions.utils import generate_id
+from functions.utils import JsonConfig
+from functions.utils import load_coordinates
 from functions.utils import load_environment_variable
 from functions.utils import load_json_config
-from functions.utils import load_coordinates
 from functions.utils import parallel_process
+from functions.utils import Timer
 
 
 logger = WriteLogger(name='image_downloader', level='DEBUG')
 timer = Timer()
 
 CONFIG_PATH = './configs/google_staticmap_image_downloader.json'
-STATUS_CODE_OK = 200
 IMAGE_SIZE = f'{gl.IMAGE_HEIGHT}x{gl.IMAGE_WIDTH}'
+STATUS_CODE_OK = 200
 
 
 class ImageDownloadError(Exception):
@@ -44,10 +44,10 @@ class ImageDownloader:
     def _create_output_directory(self):
         if not os.path.exists(gl.DIRECTORY_IMAGES):
             logger(f'Creating output directory at: {gl.DIRECTORY_IMAGES}', level='debug')
-            os.makedirs(gl.DIRECTORY_IMAGES)
+            os.makedirs(gl.DIRECTORY_IMAGES, exist_ok=True)
         return None
 
-    def _get_max_sample_mask(self, coords:gpd.GeoDataFrame) -> pd.Series:
+    def _get_pending_images(self, coords:gpd.GeoDataFrame) -> pd.Series:
         mask = coords['img_exists'] == False
         logger(f'Pending images to download={mask.sum()}/{coords.shape[0]}')
         return mask
@@ -209,7 +209,7 @@ class ImageDownloader:
         logger(f'Downloading images at: {self.cfg["input.api.url"]}')
         self._create_output_directory()
         coords = load_coordinates()
-        mask = self._get_max_sample_mask(coords=coords)
+        mask = self._get_pending_images(coords=coords)
         n = self.cfg['globals.max_images_to_download']
         logger(f'Maximun files to download for current execution={n}')
         parallel_process(
