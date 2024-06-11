@@ -20,7 +20,7 @@ from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
 
 
-logger = WriteLogger(name=__name__, level='DEBUG')
+logger = WriteLogger(name=__name__)
 
 
 def generate_id():

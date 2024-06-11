@@ -20,7 +20,7 @@ from functions.utils import parallel_process
 from functions.utils import Timer
 
 
-logger = WriteLogger(name='image_downloader', level='DEBUG')
+logger = WriteLogger(name='image_downloader')
 timer = Timer()
 
 CONFIG_PATH = './configs/google_staticmap_image_downloader.json'

@@ -9,7 +9,7 @@ from functions.utils import get_batch_idxs
 from functions.utils import load_coordinates
 
 
-logger = WriteLogger(name=__name__, level='INFO')
+logger = WriteLogger(name=__name__)
 
 
 def cropping(img:np.array, crop_size:int=20) -> np.array:

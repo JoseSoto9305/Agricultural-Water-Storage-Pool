@@ -20,7 +20,7 @@ from functions.utils import Timer
 from neural_network.resnet import restore_model
 
 
-logger = WriteLogger(name=__name__, level='DEBUG')
+logger = WriteLogger(name='predict')
 timer = Timer()
 
 CONFIG_PATH = './configs/predict.json'
