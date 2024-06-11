@@ -221,13 +221,13 @@ def main() -> None:
     try:
         logger(f'Starting extract polygons from prediction images application at: {datetime.now()}')
         extractor = ImagePolygonsExtraction()
-        polygons = extractor.run()
+        extractor.run()
         logger(f'Main application done successfully :)')
     except Exception as exc:
         logger('RuntimeError at main application full traceback is show below:', level='error')
         raise exc
-    return polygons
+    return None
 
 
 if __name__ == '__main__':
-    p = main()
+    main()
