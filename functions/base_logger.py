@@ -7,11 +7,14 @@ from datetime import datetime
 class WriteLogger:
     
     def __init__(
-        self, name='my_logger', path=None, 
-        filename_preffix='my_process', 
-        format='[%(asctime)s][%(levelname)s][%(name)s] %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S', level=lg.INFO,
-        propagate=False
+        self, 
+        name:str='my_logger', 
+        path:str=None, 
+        filename_preffix:str='my_process', 
+        format:str='[%(asctime)s][%(levelname)s][%(name)s] %(message)s',
+        datefmt:str='%Y-%m-%d %H:%M:%S', 
+        level:str=lg.INFO,
+        propagate:bool=False
     ):
         self.name = name
         self.filename = None
@@ -43,14 +46,14 @@ class WriteLogger:
         handler.setFormatter(self.formatter)
         self.logger.addHandler(handler)
 
-    def set_level(self, level):
+    def set_level(self, level:str):
         self.logger.setLevel(level)
         return None
 
-    def exception(self, exception):
+    def exception(self, exception:Exception):
         self.logger.exception(exception)
 
-    def __call__(self, *messages, level='info', **pformat_kwargs):
+    def __call__(self, *messages, level:str='info', **pformat_kwargs):
         try:
             func = getattr(self.logger, level)
         except Exception as exception:
@@ -62,35 +65,3 @@ class WriteLogger:
                 message = f'\n{message}'
             func(message)
         return None
-
-
-class BaseLogger:
-
-    logger = WriteLogger()
-
-    @staticmethod
-    def set_base_logger(*args, **kwargs):
-        logger = WriteLogger(*args, **kwargs)
-        BaseLogger.logger = logger
-        return logger
-
-    @staticmethod
-    def add_module_logger(name, level=lg.INFO):
-        logger = lg.getLogger(name)
-        logger.setLevel(level)
-        if BaseLogger.logger.filename is not None:
-            handler = lg.FileHandler(BaseLogger.logger.filename)
-        else:
-            handler = lg.StreamHandler()
-        handler.setFormatter(BaseLogger.logger.formatter)
-        logger.addHandler(handler)
-        return logger
-
-    @staticmethod
-    def set_logger_level(logger_name, level):
-        logger = lg.getLogger(logger_name)
-        logger.setLevel(level)
-        return None
-
-    def __call__(self, *args, **kwargs):
-        return BaseLogger.logger(*args, **kwargs)

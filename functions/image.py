@@ -12,7 +12,7 @@ from functions.utils import load_coordinates
 logger = WriteLogger(name=__name__, level='INFO')
 
 
-def cropping(img:np.array, crop_size=20) -> np.array:
+def cropping(img:np.array, crop_size:int=20) -> np.array:
     logger(f'Cropping image={img.shape} with crop size={crop_size}', level='debug')
     new_img = img[crop_size:img.shape[0]-crop_size, 
                     crop_size:img.shape[1]-crop_size]
@@ -20,7 +20,11 @@ def cropping(img:np.array, crop_size=20) -> np.array:
     return new_img
 
 
-def im_rescaling(img:np.array, clip_min=0.0, clip_max=1.0) -> np.array:
+def im_rescaling(
+        img:np.array, 
+        clip_min:float=0.0, 
+        clip_max:float=1.0
+    ) -> np.array:
     logger(f'Rescaling image with: clip_min={clip_min}, clip_max={clip_max}', level='debug')
     return (img-img.min()) * ((clip_max-clip_min) / 
                 (img.max() - img.min())) + clip_min

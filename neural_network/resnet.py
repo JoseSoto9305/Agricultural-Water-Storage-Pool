@@ -1,3 +1,7 @@
+# Adapted from Azavea github repositories:
+# https://github.com/azavea/raster-vision/blob/ff74fa529bc10d548297e52fff457c7b7a89d3f8/src/rastervision/semseg/models/fcn_resnet.py
+# https://github.com/azavea/raster-vision/blob/ff74fa529bc10d548297e52fff457c7b7a89d3f8/src/rastervision/semseg/models/resnet50.py
+
 import warnings
 
 import tensorflow as tf
@@ -274,8 +278,12 @@ def ResNet50(include_top=True, weights='imagenet',
 
 # //-------------------------------------------------------------\\
 
-def ResNet50_FCN(input_shape=(224,224,3), n_classes=2, 
-                 use_pretraining=True, freeze_base=False):
+def ResNet50_FCN(
+        input_shape:tuple=(224,224,3), 
+        n_classes:int=2,
+        use_pretraining:bool=True,
+        freeze_base:bool=False
+    ) -> Model:
     nb_rows, nb_cols, _ = input_shape
     input_tensor = Input(shape=input_shape)
     weights = 'imagenet' if use_pretraining else None
@@ -319,7 +327,11 @@ def ResNet50_FCN(input_shape=(224,224,3), n_classes=2,
 
 # //-------------------------------------------------------------\\
 
-def restore_model(input_shape:tuple, n_classes:int, weights_path:str):
+def restore_model(
+        input_shape:tuple, 
+        n_classes:int, 
+        weights_path:str
+    ) -> Model:
     model = ResNet50_FCN(input_shape, n_classes, False, False)
     model.load_weights(weights_path)
     return model

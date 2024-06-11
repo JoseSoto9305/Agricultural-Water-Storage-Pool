@@ -11,6 +11,7 @@ from functools import wraps
 from multiprocessing import get_context
 from multiprocessing.pool import Pool
 from multiprocessing.pool import ThreadPool
+from numbers import Number
 from typing import Any
 
 import geopandas as gpd
@@ -41,8 +42,8 @@ class JsonConfig(dict):
         >>> data['globals.date.end'] = 20     # -> Replaces 2 with 20
         >>> data.get('globals.date', 'holy')  # -> Returns `default` if key is not present
     """
-    def __getitem__(self, __key):
-        def _navegate_to_key(data, keys):
+    def __getitem__(self, __key:str) -> Any:
+        def _navegate_to_key(data:Any, keys:list):
             if not keys:
                 return data
             key = keys[0]
@@ -60,8 +61,8 @@ class JsonConfig(dict):
             return super().__getitem__(__key)
         return _navegate_to_key(self, keys)
 
-    def __setitem__(self, __key, __value) -> None:
-        def _update_key(data, keys, value):
+    def __setitem__(self, __key:str, __value:Any) -> None:
+        def _update_key(data:Any, keys:list, value:Any):
             if not keys:
                 return None
             key = keys[0]
@@ -87,33 +88,31 @@ class JsonConfig(dict):
 
 
 _convertions_tables = {
-    'data' : {
-        'reference' : 'bytes',
-        'convertions' : {
-            'bytes' : 1,
-            'Kb' : 1024,
-            'Mb' : 1024 * 1024,
-            'Gb' : 1024 * 1024 * 1024
+    'data': {
+        'reference': 'bytes',
+        'convertions': {
+            'bytes': 1,
+            'Kb': 1024,
+            'Mb': 1024 * 1024,
+            'Gb': 1024 * 1024 * 1024
         }
     },
-
-    'data_rate' : {
-        'reference' : 'bytes/sec',
-        'convertions' : {
-            'bytes/sec' : 1,
-            'Kb/sec' : 1024,
+    'data_rate': {
+        'reference': 'bytes/sec',
+        'convertions': {
+            'bytes/sec': 1,
+            'Kb/sec': 1024,
             'Mb/sec': 1024 * 1024,
-            'Gb/sec' : 1024 * 1024 * 1024
+            'Gb/sec': 1024 * 1024 * 1024
         }
     },
-
-    'time' : {
-        'reference' : 'sec',
-        'convertions' : {
-            'sec' : 1,
-            'min' : 60,
+    'time': {
+        'reference': 'sec',
+        'convertions': {
+            'sec': 1,
+            'min': 60,
             'hr': 60 * 60,
-            'day' : 60 * 60 * 24
+            'day': 60 * 60 * 24
         }
     }
 }
@@ -121,7 +120,7 @@ _convertions_tables = {
 
 class Unit:
 
-    def __init__(self, value, unit):
+    def __init__(self, value:Number, unit:str):
         self.value = value
         self.unit = unit
         self.reference = self._find_reference()
@@ -134,26 +133,26 @@ class Unit:
         reference_value = ref['convertions'][self.unit]
         return self.value * reference_value
 
-    def _get_type(self, obj):
+    def _get_type(self, obj:Any):
         if not isinstance(obj, Unit):
             if not isinstance(obj, (int, float)):
                 raise TypeError(f'Unsupported type to process for Unit class; provided={type(obj)}, expected=[Unit, int, float]')
             return obj
         return obj.reference
 
-    def __add__(self, other):
+    def __add__(self, other:Any):
         v = self._get_type(other)
         return self.reference + v
 
-    def __sub__(self, other):
+    def __sub__(self, other:Any):
         v = self._get_type(other)
         return self.reference - v
 
-    def __mul__(self, other):
+    def __mul__(self, other:Any):
         v = self._get_type(other)
         return self.reference * v
 
-    def __truediv__(self, other):
+    def __truediv__(self, other:Any):
         v = self._get_type(other)
         return self.reference / v
 
@@ -167,12 +166,12 @@ class Unit:
         return float(self.reference)
 
     def __repr__(self):
-        return f'{self.value:.2f} {self.unit}'
+        return f'{self.value:.4f} {self.unit}'
 
 
 class UnitConverter:
 
-    def __init__(self, type_unit='data'):
+    def __init__(self, type_unit:str='data'):
         self.reference = _convertions_tables[type_unit]['reference']
         self._convs = _convertions_tables[type_unit]['convertions'].copy()
         self._mappings = self._keys_mapping()
@@ -188,13 +187,13 @@ class UnitConverter:
         self._mappings = {key.lower() : key for key in self._convs}
         return self._mappings
 
-    def _is_unit_in_convs(self, key):
+    def _is_unit_in_convs(self, key:str):
         is_valid_unit = True
-        if not key in self._mappings:
+        if key not in self._mappings:
             is_valid_unit = False
         return is_valid_unit
 
-    def convert(self, value, from_unit, to_unit):
+    def convert(self, value:Number, from_unit:str, to_unit:str):
         from_key = from_unit.lower()
         to_key = to_unit.lower()
         try:
@@ -203,7 +202,6 @@ class UnitConverter:
             if not self._is_unit_in_convs(to_key):
                 raise KeyError(f'Unit to_convert=`{to_unit}` cannot be found; Must be one of these: {list(self._convs.keys())}')
         except Exception as exception:
-            logger.exception(exception)
             raise exception
         v = value * self._convs[self._mappings[from_key]]
         convertion = self._convs[self._mappings[to_key]]
@@ -211,7 +209,7 @@ class UnitConverter:
         logger(f'{value:.2f} {from_unit} = {result:.2f} {to_unit}', level='debug')
         return Unit(result, to_unit)
 
-    def get_unit_from_string(self, s):
+    def get_unit_from_string(self, s:str):
         split = s.split()
         try:
             if len(split) != 2:
@@ -222,11 +220,10 @@ class UnitConverter:
             if not self._is_unit_in_convs(key):
                 raise ValueError(f'Unit `{unit}` cannot be found; Must be one of these: {list(self._convs.keys())}')
         except Exception as exc:
-            logger.exception(exc)
             raise exc
         return Unit(value, unit)
 
-    def convert_smart(self, value):
+    def convert_smart(self, value:Number):
         def _convert(value, unit):
             value = value / self._convs[unit]            
             return value
@@ -247,7 +244,7 @@ class Timer:
     def __init__(self):
         self.run_time = 0
 
-    def time(self, func):
+    def time(self, func:callable):
         @wraps(func)
         def wrapper_timer(*args, **kwargs):
             init = time.perf_counter()
@@ -272,7 +269,7 @@ class Timer:
         logger(f'Finished code inside context manager in {self.run_time}')
         return None
 
-    def __call__(self, message, level='info'):
+    def __call__(self, message:str, level:str='info'):
         logger(message, level=level)
         return self
 
@@ -345,8 +342,6 @@ def parallel_process(
         chunksize=1,
         callable_if_timeout:callable=None
     ) -> Any:
-
-    # RAM Monitor configuration steps
     if isinstance(class_pool, str):
         if class_pool not in _local_vars:
             raise ValueError(f'Class pool={class_pool} is not available; must be one of these:{_pools_classes}')
@@ -401,7 +396,7 @@ def parallel_process(
         return data
 
 
-def replace_templates(value, replace_values,  template='<...>'):
+def replace_templates(value:str, replace_values:dict,  template:str='<...>'):
     logger(f'Value before replace templates: {value}', level='debug')    
 
     _valid_templates = ['<...>']
