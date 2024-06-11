@@ -4,13 +4,13 @@
     },
     "input": {
         "shapefile": {
-            "path": "./data/shapefiles/RH12Ga_subc_repr.shp"
+            "path": "./data/shapefiles/YOUR_INPUT_FILE.shp"
         }
     },
     "output": {
         "shapefile": {
-            "path": "./data/shapefiles/test_coords.shp"
+            "path": null
         },
-        "set_as_default": false
+        "set_as_default": true
     }
 }
