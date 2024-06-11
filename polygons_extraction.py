@@ -6,9 +6,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from scipy.sparse.csgraph import connected_components
+from skimage import img_as_float
 from shapely.geometry import Polygon
 from skimage.measure import find_contours
-from skimage import img_as_float
 from skimage.morphology import label
 
 from configs import vars_globals as gl
@@ -17,11 +17,11 @@ from functions.image import ImageGenerator
 from functions.image import read_image
 from functions.image import zero_padding
 from functions.image_georeferencing import get_image_corners
+from functions.utils import generate_id
 from functions.utils import load_json_config
 from functions.utils import parallel_process
-from functions.utils import Timer
-from functions.utils import generate_id
 from functions.utils import replace_templates
+from functions.utils import Timer
 
 
 logger = WriteLogger(name=__name__, level='INFO')
@@ -54,12 +54,12 @@ class ImageGeneratorPolygonsExtraction(ImageGenerator):
         return self.coords
 
     def _get_available_images(self) -> gpd.GeoDataFrame:
-        logger(f'Getting available images for predictions; total records: {self.coords.shape[0]}')
+        logger(f'Getting available images for polygons extraction; total records: {self.coords.shape[0]}')
         mask = (
             (self.coords['img_exists'] == True) &
             (self.coords['pred_exist'] == True)
         )
-        logger(f'Available images for prediction={mask.sum()}')
+        logger(f'Available images for polygons extraction={mask.sum()}')
         return self.coords[mask]
 
     def _get_image(self, img_path:str) -> np.array:
@@ -102,7 +102,6 @@ def get_polygons(item:tuple) -> list:
         img_corners.exterior.xy[0][0], 
         img_corners.exterior.xy[1][0]
     )
-
     # Extract the labels in the image
     labels, polygons_indices = _get_image_labels(img)
     
