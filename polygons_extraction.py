@@ -168,9 +168,9 @@ class ImagePolygonsExtraction:
         return generator
 
     def _save_relational_table(self, polygons:gpd.GeoDataFrame) -> None:
-        logger(f'Saving relational table at: {gl.PREDICTION_RELATION}')
+        logger(f'Saving relational table at: {gl.PREDICTION_RELATION_FILE}')
         logger(f'Total of polygons to save={polygons.shape[0]}')
-        polygons.to_file(driver='ESRI Shapefile', filename=gl.PREDICTION_RELATION)
+        polygons.to_file(driver='ESRI Shapefile', filename=gl.PREDICTION_RELATION_FILE)
         return None
 
     def _save_dissolved_polygons(self, dissolved:gpd.GeoDataFrame) -> None:

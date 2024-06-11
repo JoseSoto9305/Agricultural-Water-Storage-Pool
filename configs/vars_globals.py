@@ -35,7 +35,7 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 PREDICTION_THR = 0.95
 PREDICTION_PAD_SIZE = 20
 PREDICTION_FIND_COUNTOURS = 0.8
-PREDICTION_RELATION = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates_predictions.shp')
+PREDICTION_RELATION_FILE = COORDINATES_FILE.replace('.shp', '_predictions.shp')
 
 # Image filename rules 
 IMAGE_EXT = '.png'
