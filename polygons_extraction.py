@@ -209,11 +209,15 @@ class ImagePolygonsExtraction:
             )
             [polygons.extend(p) for p in pp if p] # Remove empty images
         
+        if not polygons:
+            logger(f'Cannot find any polygons, exit from main function')
+            return None
+
         polygons = gpd.GeoDataFrame(pd.DataFrame(polygons), 
                             crs=gl.COORDINATES_CRS_PROJECTION)
         self._save_relational_table(polygons=polygons)
         self._save_dissolved_polygons(dissolved=dissolve_polygons(polygons=polygons))
-        return polygons
+        return None
 
 
 @timer.time
