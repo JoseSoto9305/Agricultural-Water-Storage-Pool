@@ -24,7 +24,7 @@ from functions.utils import replace_templates
 from functions.utils import Timer
 
 
-logger = WriteLogger(name=__name__, level='INFO')
+logger = WriteLogger(name='polygons_extractor')
 timer = Timer()
 CONFIG_PATH = './configs/polygons_extraction.json'
 
@@ -75,9 +75,9 @@ class ImageGeneratorPolygonsExtraction(ImageGenerator):
         ini, end = self.indices[index]
         logger(f'Returning batch; indices from={ini}||to={end}')
 
-        img_ids = self.coords.loc[ini:end, 'ID'].values
-        img_paths = self.coords.loc[ini:end, 'pred_path'].values
-        img_corners = self.coords.loc[ini:end, '_fixed_geo'].values
+        img_ids = self.coords.iloc[ini:end]['ID'].values
+        img_paths = self.coords.iloc[ini:end]['pred_path'].values
+        img_corners = self.coords.iloc[ini:end]['_fixed_geo'].values
 
         logger(f'Total of imges for current batch={len(img_paths)}')
         for idx in range(len(img_paths)):
