@@ -68,6 +68,10 @@ class SamplesGeneratorStratifiedGrid:
         return gpd.sjoin(df, self.shape, how='inner', op='intersects')
 
     def _set_coordinates_file(self) -> gpd.GeoDataFrame:
+        self.coords = gpd.GeoDataFrame(
+            pd.concat(self.coords, ignore_index=True),
+            crs=gl.COORDINATES_CRS_PROJECTION
+        )    
         logger(f'Setting schema output file.....')
         centers = self.coords.apply(lambda x: 
                         Point(x.center_x, x.center_y), axis=1)
@@ -104,24 +108,25 @@ class SamplesGeneratorStratifiedGrid:
             'pred_exist',  # 10 characters in ESRI column file
             'geometry'
         ]]
+        logger(f'Total of samples to export: {self.coords.shape[0]}')
         return self.coords
     
-    def _set_as_default(self) -> None:
-        logger(f'Setting output file as default coordinates file')
-        if os.path.exists(gl.COORDINATES_FILE):
-            answer = input(f'Do you want to overwrite current file={gl.COORDINATES_FILE}? Y/n')
-            if answer.lower() != 'y':
-                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.shapefile.path` configuration and set `output.set_as_default` to False')
-        self.cfg['output.shapefile.path'] = gl.COORDINATES_FILE
-        return None
-
     def _save_file(self) -> None:
         path = self.cfg['output.shapefile.path']
+        if self.cfg['output.set_as_default']:
+            logger(f'Setting output file as default coordinates file')
+            path = gl.COORDINATES_FILE
+
         directory, filename = os.path.split(path)
         if not filename.endswith('.shp'):
             raise ValueError(f'Output filename={path} doesnt endswith `.shp`')
         if not os.path.exists(directory):
-            os.makedirs(path, exist_ok=True)        
+            os.makedirs(path, exist_ok=True)
+        if os.path.exists(path):
+            answer = input(f'Do you want to overwrite current file={path}? Y/n')
+            if answer.lower() != 'y':
+                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.shapefile.path` configuration and set `output.set_as_default` to False')
+
         logger(f'Saving output at: {path}')
         self.coords.to_file(driver='ESRI Shapefile', filename=path)
         return None
@@ -142,14 +147,8 @@ class SamplesGeneratorStratifiedGrid:
         if not self.coords:
             logger(f'Cannot continue with application because coords is empty :(')
             return None
-        self.coords = gpd.GeoDataFrame(
-            pd.concat(self.coords, ignore_index=True),
-            crs=gl.COORDINATES_CRS_PROJECTION)
-        logger(f'Total of samples to export: {self.coords.shape[0]}')
+
         self.coords = self._set_coordinates_file()
-        if self.cfg['output.set_as_default']:
-            
-            self._set_as_default()
         self._save_file()
         return None
 
