@@ -174,14 +174,14 @@ class ImagePolygonsExtraction:
         return None
 
     def _save_dissolved_polygons(self, dissolved:gpd.GeoDataFrame) -> None:
-        output_path = self.cfg['output.path']
+        output_path = self.cfg['output.shapefile.path']
         path, filename = os.path.split(output_path)
         if not filename.endswith('.shp'):
             raise ValueError(f'Cannot save output file because filename doesn`t ends with `.shp`')
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 
-        crs = self.cfg.get('output.projection', None)
+        crs = self.cfg.get('output.shapefile.projection', None)
         if crs is None:
             logger(f'Output CRS not provided, setting default output CRS')
             crs = gl.COORDINATES_CRS_LATLONG

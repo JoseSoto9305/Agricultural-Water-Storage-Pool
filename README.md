@@ -217,15 +217,17 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
         "batch_size": 32
     },
     "output": {
-        "path": "./data/shapefiles/Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp",
-        "projection": "epsg:4326"
+        "shapefile": {
+            "path": "./data/shapefiles/Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp",
+            "projection": "epsg:4326"    
+        }
     }
 }
 ```
 
 * **globals.batch_size (int)**: Batch size to process the prediction images.
 
-* **output.path (str)**: Output file with the extracted polygons from the prediction images. This is a template where `<NOW(dateformat)>` will print the current datetime and `<NN_WEIGHTS_ID>` will print `configs.vars_globals.NN_WEIGHTS_ID` variable (neural network weights identifier).
+* **output.shapefile.path (str)**: Output file with the extracted polygons from the prediction images. This is a template where `<NOW(dateformat)>` will print the current datetime and `<NN_WEIGHTS_ID>` will print `configs.vars_globals.NN_WEIGHTS_ID` variable (neural network weights identifier).
 
-* **output.projection (str)**: CRS projection for the output shapefile.
+* **output.shapefile.projection (str)**: CRS projection for the output shapefile.
 

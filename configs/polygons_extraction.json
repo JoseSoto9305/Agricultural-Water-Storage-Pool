@@ -3,7 +3,9 @@
         "batch_size": 32
     },
     "output": {
-        "path": "./data/shapefiles/Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp",
-        "projection": "epsg:4326"
+        "shapefile": {
+            "path": "./data/shapefiles/Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp",
+            "projection": "epsg:4326"    
+        }
     }
 }
