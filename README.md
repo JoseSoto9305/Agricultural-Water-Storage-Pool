@@ -107,7 +107,7 @@ IMAGE_DTHR = 250
 
 * **IMAGE_WIDTH (int)**: Image width in pixels. The `google_staticmap_image_downloader` module uses this parameter to download the images.
 
-* **IMAGE_CHANNELS (int)**: Total of channels in the downloaded images. The module `google_staticmap_image_downloader` by default downloads images in RGB format.
+* **IMAGE_CHANNELS (int)**: Total of channels in the downloaded images. The `google_staticmap_image_downloader` module by default downloads images in RGB format.
 
 * **IMAGE_RESOLUTION_X (float)**: X-axis pixel resultion. Pixel resolution is calculated using [this function](https://github.com/ishukshin/image-coordinates.py)
 
@@ -115,7 +115,7 @@ IMAGE_DTHR = 250
 
 * **IMAGE_CROP_SIZE (int)**: Total of pixels to hide in the image. Crop size is applied to each image border.
 
-* **IMAGE_DTHR (int)**: Distance between each image center (X and Y direction). The `generate_samples.py` module use this parameter to generate the stratified grid of samples.
+* **IMAGE_DTHR (int)**: Distance between each image center (X and Y direction). The `generate_samples.py` module uses this parameter to generate the stratified grid of samples.
 
 
 ```python
