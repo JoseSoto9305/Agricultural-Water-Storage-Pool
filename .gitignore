@@ -12,3 +12,7 @@
 *.qmd
 *.h5
 *test.py
+
+# Docs
+*.drawio
+*.drawio.bkp
