@@ -11,8 +11,8 @@ from skimage.io import imsave
 from configs import vars_globals as gl
 from functions.base_logger import WriteLogger
 from functions.image import cropping
-from functions.image import im_rescaling
 from functions.image import ImageGenerator
+from functions.image import im_rescaling
 from functions.image import read_image
 from functions.utils import load_coordinates
 from functions.utils import load_json_config
