@@ -39,9 +39,9 @@ class SamplesGeneratorStratifiedGrid:
             logger(f'Reproject shape to default CRS projection={gl.COORDINATES_CRS_PROJECTION}', level='debug')
             data = data.to_crs(gl.COORDINATES_CRS_PROJECTION)
         assert data.crs.equals(gl.COORDINATES_CRS_PROJECTION), f'Unexpected error; incorrect CRS in input shapefile; input={data.crs}; expected={gl.COORDINATES_CRS_PROJECTION}'
-        logger(f'Shapefile loaded successfully')
         if data.shape[0] == 0:
             raise ValueError(f'Empty file; cannot process this shapefile because is empty')
+        logger(f'Shapefile loaded successfully')
         return data
 
     def _build_grid(self) -> np.array:
@@ -68,11 +68,12 @@ class SamplesGeneratorStratifiedGrid:
         return gpd.sjoin(df, self.shape, how='inner', op='intersects')
 
     def _set_coordinates_file(self) -> gpd.GeoDataFrame:
+        logger(f'Setting schema output file.....')
         self.coords = gpd.GeoDataFrame(
             pd.concat(self.coords, ignore_index=True),
             crs=gl.COORDINATES_CRS_PROJECTION
         )    
-        logger(f'Setting schema output file.....')
+        # Get coordinates in latlong for the google map api
         centers = self.coords.apply(lambda x: 
                         Point(x.center_x, x.center_y), axis=1)
         centers = gpd.GeoSeries(centers, crs=gl.COORDINATES_CRS_PROJECTION)
@@ -125,7 +126,7 @@ class SamplesGeneratorStratifiedGrid:
         if os.path.exists(path):
             answer = input(f'Do you want to overwrite current file={path}? Y/n')
             if answer.lower() != 'y':
-                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.shapefile.path` configuration and set `output.set_as_default` to False')
+                raise FileExistsError(f'Cannot set file as default coordinates file; set a different path at `output.shapefile.path`')
 
         logger(f'Saving output at: {path}')
         self.coords.to_file(driver='ESRI Shapefile', filename=path)
@@ -142,7 +143,7 @@ class SamplesGeneratorStratifiedGrid:
                 iterable=self.coords, 
                 batch_size=self.batch_size
             ),
-            class_pool='ProcessPoolExecutor'
+            class_pool='Pool'
         )
         if not self.coords:
             logger(f'Cannot continue with application because coords is empty :(')
