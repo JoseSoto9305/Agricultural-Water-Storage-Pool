@@ -1,15 +1,15 @@
 # **Agricultural Water Storage Pool Detection**
 
 <!-- vscode-markdown-toc -->
-* 1. [1. Introducction](#Introducction)
-* 2. [2. Requirements](#Requirements)
-* 3. [3. Usage](#Usage)
-* 4. [4. Configuration](#Configuration)
-	* 4.1. [4.1 Global variables](#Globalvariables)
-	* 4.2. [4.2 Generate samples configuration](#Generatesamplesconfiguration)
-	* 4.3. [4.3 Google staticmap image downloader configuration](#Googlestaticmapimagedownloaderconfiguration)
-	* 4.4. [4.4 Predict configuration](#Predictconfiguration)
-	* 4.5. [4.5 Polygons extraction configuration](#Polygonsextractionconfiguration)
+* [1. Introducction](#Introducction)
+* [2. Requirements](#Requirements)
+* [3. Usage](#Usage)
+* [4. Configuration](#Configuration)
+  * [4.1 Global variables](#Globalvariables)
+  * [4.2 Generate samples configuration](#Generatesamplesconfiguration)
+  * [4.3 Google staticmap image downloader configuration](#Googlestaticmapimagedownloaderconfiguration)
+  * [4.4 Predict configuration](#Predictconfiguration)
+  * [4.5 Polygons extraction configuration](#Polygonsextractionconfiguration)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
