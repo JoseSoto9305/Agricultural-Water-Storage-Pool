@@ -1,6 +1,7 @@
 # Agricultural-Water-Storage-Pool
 
-Detects agricultural water reservoir or pools with geomembrane lining using [google maps satellite imagery](https://developers.google.com/maps/documentation/maps-static/overview). It uses a Fully Convolutional Network with ResNet50 as a feature extractor. 
+Mexico is the leading avocado producer in the world. By 2018, it produced one-third of global fruit production and with nearly 235,000 hectares dedicated to this culture. The state of Michoacan holds the first place in national production and contributes with 86% of it. Access to irrigation water is critical to increase avocado productivity. Therefore, producers usually build water pools with geo-membranes design. However, the hydrological impact of these infrastructure is yet to be addressed.
+Here, we trained a Fully Convolutional Network with ResNet50 as a feature extractor to detect avocado related agricultural water pools, using open-access and high-resolution satellite imagery (pixel resolution=0.56 m) from [Google-Maps](https://developers.google.com/maps/documentation/maps-static/overview).
 
 ![img1](./docs/img1.png)
 
@@ -30,7 +31,9 @@ sudo apt-get install -qy python3-rtree
 ```
 
 # Usage
-Below image describes process logic. The `input` is an `ESRI shapefile`. A stratified grid of image center coordinates is generated. Sample images are donwloaded and parsed to the fully convolutional neural network. Then polygons are extracted from prediction images and an output `ESRI shapefile` is generated with the detected  water reservoirs polygons.
+Below image describes process logic. The `input` is an `ESRI shapefile`. A stratified grid of image center coordinates is generated. Sample images are downloaded and parsed to the fully convolutional neural network. Then polygons are extracted from prediction images and an output `ESRI shapefile` is generated with the detected  water reservoirs polygons.
+
+* Note: Consult [Google-Maps Static API Usage and Billing](https://developers.google.com/maps/documentation/maps-static/usage-and-billing)
 
 ![img1](./docs/img4.png)
 
