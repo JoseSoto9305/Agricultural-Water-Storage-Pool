@@ -1,9 +1,13 @@
 import os
 
+# Project name
+PROJECT_NAME = 'MyProject'
+
 # Directories
-DIRECTORY_IMAGES = './data/google_images'
-DIRECTORY_PREDICTIONS = './data/prediction_images'
-DIRECTORY_SHAPEFILES = './data/shapefiles'
+_DIRECTORY_DATA = './data'
+DIRECTORY_IMAGES = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'google_images')
+DIRECTORY_PREDICTIONS = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'prediction_images')
+DIRECTORY_SHAPEFILES = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'shapefiles')
 
 # Coordinates Samples File
 COORDINATES_FILE = os.path.join(DIRECTORY_SHAPEFILES, 'coordinates.shp')
@@ -36,6 +40,7 @@ PREDICTION_THR = 0.95
 PREDICTION_PAD_SIZE = 20
 PREDICTION_FIND_COUNTOURS = 0.8
 PREDICTION_RELATION_FILE = COORDINATES_FILE.replace('.shp', '_predictions.shp')
+POLYGONS_OUTPUT_FILE = os.path.join(DIRECTORY_SHAPEFILES, 'Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp')
 
 # Image filename rules 
 IMAGE_EXT = '.png'

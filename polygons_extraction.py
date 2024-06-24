@@ -173,7 +173,7 @@ class ImagePolygonsExtraction:
         return None
 
     def _save_dissolved_polygons(self, dissolved:gpd.GeoDataFrame) -> None:
-        output_path = self.cfg['output.shapefile.path']
+        output_path = gl.POLYGONS_OUTPUT_FILE
         path, filename = os.path.split(output_path)
         if not filename.endswith('.shp'):
             raise ValueError(f'Cannot save output file because filename doesn`t ends with `.shp`')
