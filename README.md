@@ -17,7 +17,7 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Introducction'></a>1. Introducction
+##  <a name='Introducction'></a>1. Introducction
 
 Mexico is the leading avocado producer in the world. By 2018, it produced one-third of global fruit production and with nearly 235,000 hectares dedicated to this culture. The state of Michoacan holds the first place in national production and contributes with 86% of it. Access to irrigation water is critical to increase avocado productivity. Therefore, producers usually build water pools with geo-membranes design. However, the hydrological impact of these infrastructure is yet to be addressed.
 Here, we trained a Fully Convolutional Network with ResNet50 as a feature extractor to detect avocado related agricultural water pools, using open-access and high-resolution satellite imagery (pixel resolution=0.56 m) from [Google-Maps](https://developers.google.com/maps/documentation/maps-static/overview).
@@ -33,7 +33,7 @@ Our fine-tuned model detects water reservoir greater than 230 m² of size with a
 ![img1](./docs/img3.png)
 
 
-##  2. <a name='Requirements'></a>2. Requirements
+##  <a name='Requirements'></a>2. Requirements
 
 The codes have been tested on `linux mint` using `python 3.7.17`. You can install the required python version with [pyenv](https://github.com/pyenv/pyenv)
 
@@ -49,7 +49,7 @@ sudo apt-get update
 sudo apt-get install -qy python3-rtree
 ```
 
-##  3. <a name='Usage'></a>3. Usage
+##  <a name='Usage'></a>3. Usage
 
 Below image describes process logic. The `input` is an `ESRI shapefile`. A stratified grid of image center coordinates is generated. Sample images are downloaded and parsed to the fully convolutional neural network. Then polygons are extracted from prediction images and an output `ESRI shapefile` is generated with the detected  water reservoirs polygons.
 
@@ -83,9 +83,9 @@ python polygons_extraction.py
 ```
 
 
-##  4. <a name='Configuration'></a>4. Configuration
+##  <a name='Configuration'></a>4. Configuration
 
-###  4.1. <a name='Globalvariables'></a>4.1 Global variables
+###  <a name='Globalvariables'></a>4.1 Global variables
 
 The module `configs.vars_globals` contains main global variables:
 
@@ -153,7 +153,7 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 * **NN_WEIGHTS_FILE (str)**: File with the neural network trained weights.
 
 
-###  4.2. <a name='Generatesamplesconfiguration'></a>4.2 Generate samples configuration
+###  <a name='Generatesamplesconfiguration'></a>4.2 Generate samples configuration
 
 ```json
 {
@@ -181,7 +181,7 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 * **output.shapefile.set_as_default (boolean)**: If enable, output file will be saved at `configs.vars_globals.COORDINATES_FILE`, otherwise `output.shapefile.path[str]` must be set.
 
 
-###  4.3. <a name='Googlestaticmapimagedownloaderconfiguration'></a>4.3 Google staticmap image downloader configuration
+###  <a name='Googlestaticmapimagedownloaderconfiguration'></a>4.3 Google staticmap image downloader configuration
 
 ```json
 {
@@ -220,7 +220,7 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 
 * **input.api.timeout (str)**: Timeout in seconds to stop an image request
 
-###  4.4. <a name='Predictconfiguration'></a>4.4 Predict configuration
+###  <a name='Predictconfiguration'></a>4.4 Predict configuration
 
 ```json
 {
@@ -232,7 +232,7 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 
 * **globals.batch_size (int)**: Batch size to process the downloaded images.
 
-###  4.5. <a name='Polygonsextractionconfiguration'></a>4.5 Polygons extraction configuration
+###  <a name='Polygonsextractionconfiguration'></a>4.5 Polygons extraction configuration
 
 ```json
 {
