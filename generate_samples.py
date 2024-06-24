@@ -122,7 +122,7 @@ class SamplesGeneratorStratifiedGrid:
         if not filename.endswith('.shp'):
             raise ValueError(f'Output filename={path} doesnt endswith `.shp`')
         if not os.path.exists(directory):
-            os.makedirs(path, exist_ok=True)
+            os.makedirs(directory, exist_ok=True)
         if os.path.exists(path):
             answer = input(f'Do you want to overwrite current file={path}? Y/n')
             if answer.lower() != 'y':
