@@ -90,11 +90,21 @@ python polygons_extraction.py
 The module `configs.vars_globals` contains main global variables:
 
 ```python
+# Project name
+
+PROJECT_NAME = 'MyProject'
+```
+
+* **PROJECT_NAME (str):** The name of the project
+
+
+```python
 # Directories
 
-DIRECTORY_IMAGES = './data/google_images'
-DIRECTORY_PREDICTIONS = './data/prediction_images'
-DIRECTORY_SHAPEFILES = './data/shapefiles'
+DIRECTORY_IMAGES = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'google_images')
+DIRECTORY_PREDICTIONS = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'prediction_images')
+DIRECTORY_SHAPEFILES = os.path.join(_DIRECTORY_DATA, PROJECT_NAME, 'shapefiles')
+
 ```
 
 * **DIRECTORY_IMAGES (str)**: Directory where `google_staticmap_image_downloader.py` module will store downloaded images.
@@ -151,6 +161,15 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 * **NN_CLASSES (int)**: The `predict.py` module works with a binary neural network segmentation.
 
 * **NN_WEIGHTS_FILE (str)**: File with the neural network trained weights.
+
+
+```python
+# Polygons Extraction
+
+POLYGONS_OUTPUT_FILE = os.path.join(DIRECTORY_SHAPEFILES, 'Polyons_<NOW(%Y%m%d_%H%M%S)>_weights_<NN_WEIGHTS_ID>.shp')
+```
+
+* **POLYGONS_OUTPUT_FILE (str)**: Output file with the extracted polygons from the prediction images. This is a template where `<NOW(dateformat)>` will print the current datetime and `<NN_WEIGHTS_ID>` will print `configs.vars_globals.NN_WEIGHTS_ID` variable (neural network weights identifier).
 
 
 ###  <a name='Generatesamplesconfiguration'></a>4.2 Generate samples configuration
@@ -249,8 +268,6 @@ NN_WEIGHTS_FILE = f'./neural_network/Model/weights_{NN_WEIGHTS_ID}.h5'
 ```
 
 * **globals.batch_size (int)**: Batch size to process the prediction images.
-
-* **output.shapefile.path (str)**: Output file with the extracted polygons from the prediction images. This is a template where `<NOW(dateformat)>` will print the current datetime and `<NN_WEIGHTS_ID>` will print `configs.vars_globals.NN_WEIGHTS_ID` variable (neural network weights identifier).
 
 * **output.shapefile.projection (str)**: CRS projection for the output shapefile.
 
