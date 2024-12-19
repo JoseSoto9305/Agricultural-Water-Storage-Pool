@@ -137,7 +137,7 @@ def get_polygons(item:tuple) -> list:
 def dissolve_polygons(polygons:gpd.GeoDataFrame):
     logger(f'Dissolving polygons; input shape={polygons.shape}')
     matrix = polygons.geometry.apply(
-        lambda x: polygons.geometry.intersects(x)).values.astype(int)
+        lambda x: polygons.geometry.intersects(x)).values.astype(int) # TODO: Optimize
 
     _, ids = connected_components(matrix, directed=False)
     dissolved = gpd.GeoDataFrame({
@@ -215,7 +215,7 @@ class ImagePolygonsExtraction:
         polygons = gpd.GeoDataFrame(pd.DataFrame(polygons), 
                             crs=gl.COORDINATES_CRS_PROJECTION)
         self._save_relational_table(polygons=polygons)
-        self._save_dissolved_polygons(dissolved=dissolve_polygons(polygons=polygons))
+        self._save_dissolved_polygons(polygons)
         return None
 
 
